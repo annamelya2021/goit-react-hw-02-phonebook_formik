@@ -1,63 +1,77 @@
-import { Component } from 'react';
+// import { Component } from 'react';
 import shortid from 'shortid';
-import { Input, Form, Button, Label } from './ContactForm.styled';
-import PropTypes from 'prop-types';
+import * as yup from 'yup';
 
-class ContactForm extends Component {
-  static propTypes = { submit: PropTypes.func.isRequired };
+// import { Input, Form, Button, Label } from './ContactForm.styled';
+// import PropTypes from 'prop-types';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 
-  state = { id: '', name: '', number: '' };
+const schema = yup.object().shape({
+  login: yup.string().required(),
+  password: yup.string().min(8).max(16).required(),
+});
+const initialValues = {
+  login: '',
+  password: '',
+};
 
-  onHandleImputChange = e => {
-    const { name, value } = e.currentTarget;
-    this.setState({
-      [name]: value,
-    });
-    this.setState({ id: shortid.generate() });
+const ContactForm = ({ onSubmit }) => {
+  const id = shortid.generate();
+
+  const addContact = (values, { resetForm }) => {
+    onSubmit({ id, ...values });
+    resetForm();
   };
+  // static propTypes = { submit: PropTypes.func.isRequired };
 
-  onHandleSubmit = e => {
-    e.preventDefault();
-    this.props.submit(this.state);
-    this.reset();
-  };
+  // state = { id: '', name: '', number: '' };
 
-  reset = () => {
-    this.setState({ id: '', name: '', number: '' });
-  };
+  // onHandleImputChange = e => {
+  //   const { name, value } = e.currentTarget;
+  //   this.setState({
+  //     [name]: value,
+  //   });
+  //   this.setState({ id: shortid.generate() });
+  // };
 
-  render() {
-    return (
-      <Form onSubmit={this.onHandleSubmit}>
-        <Label>
+  // onHandleSubmit = e => {
+  //   e.preventDefault();
+  //   this.props.submit(this.state);
+  //   this.reset();
+  // };
+
+  // reset = () => {
+  //   this.setState({ id: '', name: '', number: '' });
+  // };
+  // const LoginForm = (values, { resetForm }) => {
+  //   handleSubmit(id, ...values);
+  //   console.log(values);
+  //   // console.log(actions);
+  //   resetForm();
+  // };
+
+  return (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={schema}
+      onSubmit={addContact}
+    >
+      <Form autoComplete="off">
+        <label>
           Name:
-          <Input
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
-            value={this.state.name}
-            onChange={this.onHandleImputChange}
-          />
-        </Label>
-        <Label>
+          <Field type="text" name="name" />
+          <ErrorMessage name="name" />
+        </label>
+        <label>
           Number:
-          <Input
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            required
-            value={this.state.number}
-            onChange={this.onHandleImputChange}
-          />
-        </Label>
+          <Field type="tel" name="number" />
+          <ErrorMessage name="name" />
+        </label>
 
-        <Button type="submit">Add contact</Button>
+        <button type="submit">Add contact</button>
       </Form>
-    );
-  }
-}
+    </Formik>
+  );
+};
 
 export default ContactForm;
